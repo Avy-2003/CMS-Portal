@@ -10,7 +10,7 @@ const Login = () => {
 
   const handleLogin = async () => {
     try {
-      const res = await axios.post("http://localhost:8080/auth/login", {
+      const res = await axios.post("https://diplomatic-upliftment-production.up.railway.app/auth/login", {
         email,
         password,
       });

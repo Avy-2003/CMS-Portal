@@ -38,7 +38,7 @@ useEffect(() => {
     if (!userId) return;
 
     axios
-      .get(`http://localhost:8080/complaints/user/${userId}`)
+      .get(`https://diplomatic-upliftment-production.up.railway.app/complaints/user/${userId}`)
       .then((res) => setComplaints(res.data))
       .catch((err) => console.error(err));
   }, [user?.id]);
@@ -47,7 +47,7 @@ useEffect(() => {
   if (!user?.id) return;
 
   axios
-    .get(`http://localhost:8080/users/${user.id}`)
+    .get(`https://diplomatic-upliftment-production.up.railway.app/users/${user.id}`)
     .then((res) => {
       setProfile(res.data); // full object
     })
@@ -59,7 +59,7 @@ useEffect(() => {
   if (!user?.id) return;
 
   axios
-    .get(`http://localhost:8080/complaints/user/${user.id}/stats`)
+    .get(`https://diplomatic-upliftment-production.up.railway.app/complaints/user/${user.id}/stats`)
     .then((res) => {
       setStats(res.data);
     })
@@ -82,7 +82,7 @@ const handleSubmit = () => {
   }
 
   axios
-    .post("http://localhost:8080/complaints", {
+    .post("https://diplomatic-upliftment-production.up.railway.app/complaints", {
       ...newComplaint,
       userId: userId
     })
