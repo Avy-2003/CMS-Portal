@@ -10,7 +10,10 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
-@CrossOrigin(origins = "http://localhost:5173")
+@CrossOrigin(origins = {
+        "http://localhost:5173",
+        "https://cms-portal-gamma.vercel.app"
+})
 @RestController
 @RequestMapping("/complaints")
 public class ComplaintController {
