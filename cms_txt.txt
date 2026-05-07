@@ -1,0 +1,4 @@
+User (1) ---- (M) Complaint
+User (Police) ---- assignedOfficer
+Complaint (1) ---- (M) Evidence
+Complaint (1) ---- (M) Logs
