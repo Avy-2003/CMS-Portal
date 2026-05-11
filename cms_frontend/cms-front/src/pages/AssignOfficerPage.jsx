@@ -16,7 +16,7 @@ export default function OfficersListPage() {
   // fetch officershttps://diplomatic-upliftment-production.up.railway.app
   useEffect(() => {
     axios
-      .get("https://diplomatic-upliftment-production.up.railway.app/users/officers/stats")
+      .get("http://localhost:8080/users/officers/stats")
       .then((res) => {
         console.log("OFFICERS:", res.data);
         setOfficers(res.data);
@@ -31,7 +31,7 @@ export default function OfficersListPage() {
 
     axios
       .put(
-        `https://diplomatic-upliftment-production.up.railway.app/complaints/${complaintIds[officerId]}/assign?officerId=${officerId}`
+        `http://localhost:8080/complaints/${complaintIds[officerId]}/assign?officerId=${officerId}`
       )
       .then(() => {
         alert("Complaint Assigned Successfully");

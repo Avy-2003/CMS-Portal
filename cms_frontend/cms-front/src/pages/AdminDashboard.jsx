@@ -30,7 +30,7 @@ const [officer, setOfficer] = useState({
 
 const addOfficer = () => {
 
-  axios.post("https://diplomatic-upliftment-production.up.railway.app/users", officer)
+  axios.post("http://localhost:8080/users", officer)
     .then(() => {
       alert(`${officer.role} added successfully`);
 
@@ -62,7 +62,7 @@ useEffect(() => {
   if (!user?.id) return;
 
   axios
-    .get(`https://diplomatic-upliftment-production.up.railway.app/users/${user.id}`)
+    .get(`http://localhost:8080/users/${user.id}`)
     .then((res) => {
       setProfile(res.data); // full object
     })
@@ -79,7 +79,7 @@ useEffect(() => {
   // ✅ Fetch complaints
   useEffect(() => {
   axios
-    .get("https://diplomatic-upliftment-production.up.railway.app/complaints/withuser")
+    .get("http://localhost:8080/complaints/withuser")
     .then((res) => {
       // console.log("COMPLAINTS WITH USER:", res.data); // debug
       setComplaints(res.data);
@@ -90,7 +90,7 @@ useEffect(() => {
   // ✅ Fetch stats
   useEffect(() => {
     axios
-      .get("https://diplomatic-upliftment-production.up.railway.app/complaints/stats")
+      .get("http://localhost:8080/complaints/stats")
       .then((res) => setStats(res.data))
       .catch((err) => console.error(err));
   }, []);
@@ -98,7 +98,7 @@ useEffect(() => {
   // ✅ Update Status
   const updateStatus = (id, status) => {
     axios
-      .put(`https://diplomatic-upliftment-production.up.railway.app/complaints/${id}/status`, { status })
+      .put(`http://localhost:8080/complaints/${id}/status`, { status })
       .then(() => {
         // update UI
         setComplaints((prev) =>
@@ -108,7 +108,7 @@ useEffect(() => {
         );
 
         // refresh stats
-        return axios.get("https://diplomatic-upliftment-production.up.railway.app/complaints/stats");
+        return axios.get("http://localhost:8080/complaints/stats");
       })
       .then((res) => setStats(res.data))
       .catch((err) => console.error(err));
