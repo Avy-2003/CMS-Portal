@@ -27,6 +27,9 @@ public class ComplaintServiceImpl implements ComplaintService {
     @Autowired
     private UserRepository userRepository;
 
+    @Autowired
+    private EmailService emailService;
+
     @Override
     public ComplaintDTO createComplaint(ComplaintDTO dto) {
 
@@ -43,6 +46,9 @@ public class ComplaintServiceImpl implements ComplaintService {
         complaint.setUser(user);
 
         Complaint saved = complaintRepository.save(complaint);
+        emailService.sendComplaintNotification(
+                "abhishekgowdavy7@gmail.com",
+                saved);
 
         return ComplaintMapper.toDTO(saved);
     }
@@ -91,7 +97,7 @@ public class ComplaintServiceImpl implements ComplaintService {
         }
 
         complaint.setAssignedOfficer(officer);
-        complaint.setStatus(ComplaintStatus.NEW);
+        complaint.setStatus(ComplaintStatus.ASSIGNED);
 
         Complaint saved = complaintRepository.save(complaint);
 
@@ -119,14 +125,14 @@ public class ComplaintServiceImpl implements ComplaintService {
 
         long total = complaintRepository.countByUserId(userId);
         long resolved = complaintRepository.countByUserIdAndStatus(userId, ComplaintStatus.RESOLVED);
-        long pending = complaintRepository.countByUserIdAndStatus(userId, ComplaintStatus.PENDING);
+        long assigned = complaintRepository.countByUserIdAndStatus(userId, ComplaintStatus.ASSIGNED);
         long new1 = complaintRepository.countByUserIdAndStatus(userId, ComplaintStatus.NEW);
         long inprogress = complaintRepository.countByUserIdAndStatus(userId, ComplaintStatus.IN_PROGRESS);
 
         Map<String, Long> stats = new HashMap<>();
         stats.put("total", total);
         stats.put("resolved", resolved);
-        stats.put("pending", pending);
+        stats.put("assigned", assigned);
         stats.put("inProgress", inprogress);
         stats.put("new", new1);
 
@@ -141,11 +147,11 @@ public class ComplaintServiceImpl implements ComplaintService {
         long resolved = complaints.stream()
                 .filter(c -> c.getStatus() == ComplaintStatus.RESOLVED)
                 .count();
-        long pending = complaints.stream().filter(c -> c.getStatus()==ComplaintStatus.PENDING).count();
+        long assigned = complaints.stream().filter(c -> c.getStatus()==ComplaintStatus.ASSIGNED).count();
         long inProgress = complaints.stream().filter(c -> c.getStatus()==ComplaintStatus.IN_PROGRESS).count();
         long newCount = complaints.stream().filter(c -> c.getStatus()==ComplaintStatus.NEW).count();
 
-        return new ComplaintStatsDTO(total, resolved, pending, inProgress, newCount);
+        return new ComplaintStatsDTO(total, resolved, assigned, inProgress, newCount);
     }
 
     }
