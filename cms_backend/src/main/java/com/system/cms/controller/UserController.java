@@ -16,7 +16,7 @@ public class UserController {
     private UserService userService;
 
     @PostMapping
-    public UserDTO register(@RequestBody UserDTO dto) {
+    public String register(@RequestBody UserDTO dto) {
         return userService.registerUser(dto);
     }
 
@@ -31,7 +31,7 @@ public class UserController {
     }
 
     @PutMapping("/{id}")
-    public UserDTO updateUser(@PathVariable Long id, @RequestBody UserDTO dto) {
+    public String updateUser(@PathVariable Long id, @RequestBody UserDTO dto) {
         return userService.updateUser(id, dto);
     }
 

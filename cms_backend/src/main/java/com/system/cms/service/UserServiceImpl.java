@@ -7,6 +7,7 @@ import com.system.cms.mapper.UserMapper;
 import com.system.cms.repository.UserRepository;
 import com.system.cms.util.Role;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
 import java.util.HashMap;
@@ -18,15 +19,21 @@ public class UserServiceImpl implements UserService {
     @Autowired
     private UserRepository userRepository;
 
-    @Override
-    public UserDTO registerUser(UserDTO dto) {
 
+    private BCryptPasswordEncoder passwordEncoder=new BCryptPasswordEncoder(12);
+
+    @Override
+    public String registerUser(UserDTO dto) {
+
+        System.out.println("Registering user: " + dto.getEmail());
+        System.out.println("Registering pw: " + dto.getPassword());
+        dto.setPassword(passwordEncoder.encode(dto.getPassword()));
         User user = UserMapper.toEntity(dto);
 
         // Save to DB
         User saved = userRepository.save(user);
 
-        return UserMapper.toDTO(saved);
+        return UserMapper.toDTO(saved).getName() + " --> User registered successfully";
     }
 
     @Override
@@ -50,7 +57,7 @@ public class UserServiceImpl implements UserService {
     }
 
     @Override
-    public UserDTO updateUser(Long id, UserDTO dto) {
+    public String updateUser(Long id, UserDTO dto) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
 
@@ -65,8 +72,9 @@ public class UserServiceImpl implements UserService {
 
         User updated = userRepository.save(user);
 
-        return UserMapper.toDTO(updated);
+        return "User updated successfully.";
     }
+
     public void deleteUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("User not found"));
