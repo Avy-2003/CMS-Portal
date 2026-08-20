@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_LOCAL_URL;
+const BASE_URL = "http://localhost:8080"; // Replace with your backend URL
 export default function OfficerDashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(sessionStorage.getItem("user"));
 
   const [complaints, setComplaints] = useState([]);
   const [stats, setStats] = useState({
@@ -24,7 +24,7 @@ export default function OfficerDashboard() {
 
 useEffect(() => {
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(sessionStorage.getItem("user"));
 
   if (!user || user.role !== "OFFICER") {
     navigate("/");
@@ -124,7 +124,7 @@ useEffect(() => {
 
             <button
               onClick={() => {
-                localStorage.clear();
+                sessionStorage.clear();
                 navigate("/");
               }}
               className="mt-8 w-full rounded-3xl bg-rose-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-600"

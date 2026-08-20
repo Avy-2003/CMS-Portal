@@ -2,10 +2,10 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_LOCAL_URL;
+const BASE_URL = "http://localhost:8080"; // Replace with your backend URL
 export default function AdminDashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(sessionStorage.getItem("user"));
 
   const [stats, setStats] = useState({
     total: 0,
@@ -46,8 +46,8 @@ export default function AdminDashboard() {
       .catch((err) => console.log(err));
   };
 
-  useEffect(() => {
-    const user = JSON.parse(localStorage.getItem("user"));
+    useEffect(() => {
+      const user = JSON.parse(sessionStorage.getItem("user"));
     // console.log("USER:", user); // debug
 
     if (!user || user.role !== "ADMIN") {
@@ -201,7 +201,7 @@ export default function AdminDashboard() {
 
             <button
               onClick={() => {
-                localStorage.clear();
+                sessionStorage.clear();
                 navigate("/");
               }}
               className="mt-8 w-full rounded-3xl bg-rose-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-600"
