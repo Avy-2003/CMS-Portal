@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+
+<html xmlns:th="http://www.thymeleaf.org">
+
+<head>
+
+    <meta charset="UTF-8">
+
+    <style>
+
+        body {
+            font-family: Arial;
+            background-color: #f4f4f4;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            max-width: 600px;
+            margin: auto;
+        }
+
+        .title {
+            color: #d32f2f;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        td {
+            padding: 10px;
+        }
+
+        .label {
+            font-weight: bold;
+            width: 150px;
+        }
+
+        .btn {
+            display: inline-block;
+            background: #1976d2;
+            color: white;
+            padding: 12px 20px;
+            text-decoration: none;
+            border-radius: 5px;
+            margin-top: 20px;
+        }
+
+    </style>
+
+</head>
+
+<body>
+
+<div class="container">
+
+    <h2 class="title">
+        New Complaint Raised
+    </h2>
+
+    <p>
+        A new complaint has been registered.
+    </p>
+
+    <table>
+
+        <tr>
+            <td class="label">
+                Complaint ID:
+            </td>
+
+            <td>
+                <span th:text="${id}"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">
+                Title:
+            </td>
+
+            <td>
+                <span th:text="${title}"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">
+                Status:
+            </td>
+
+            <td>
+                <span th:text="${status}"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">
+                User:
+            </td>
+
+            <td>
+                <span th:text="${userName}"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">
+                Phone:
+            </td>
+
+            <td>
+                <span th:text="${phone}"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">
+                Email:
+            </td>
+
+            <td>
+                <span th:text="${email}"></span>
+            </td>
+        </tr>
+
+        <tr>
+            <td class="label">
+                Location:
+            </td>
+
+            <td>
+                <span th:text="${location}"></span>
+            </td>
+        </tr>
+
+    </table>
+
+    <br>
+
+    <a href="http://localhost:5173/admin"
+       class="btn">
+
+        View Complaint
+
+    </a>
+
+</div>
+
+</body>
+
+</html>

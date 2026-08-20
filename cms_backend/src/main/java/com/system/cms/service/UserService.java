@@ -7,13 +7,13 @@ import java.util.Map;
 
 public interface UserService {
 
-    UserDTO registerUser(UserDTO dto);
+    String registerUser(UserDTO dto);
 
     List<UserDTO> getAllUsers();
 
     UserDTO getUserById(Long id);
 
-    UserDTO updateUser(Long id, UserDTO dto);
+    String updateUser(Long id, UserDTO dto);
 
     void deleteUser(Long id);
 

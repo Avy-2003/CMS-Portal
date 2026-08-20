@@ -11,7 +11,7 @@ import lombok.NoArgsConstructor;
 public class ComplaintStatsDTO {
     private long total;
     private long resolved;
-    private long pending;
+    private long assigned;
     private long inProgress;
     private long newCount;
 

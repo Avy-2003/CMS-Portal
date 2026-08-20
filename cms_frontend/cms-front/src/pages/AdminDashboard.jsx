@@ -2,6 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
+const BASE_URL = import.meta.env.VITE_LOCAL_URL;
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(localStorage.getItem("user"));
@@ -9,65 +10,61 @@ export default function AdminDashboard() {
   const [stats, setStats] = useState({
     total: 0,
     resolved: 0,
-    pending: 0,
+    assigned: 0,
     inProgress: 0,
     newCount: 0,
   });
 
   const [profile, setProfile] = useState({
-  name: "",
-  phone: "",
-  email: ""
-});
+    name: "",
+    phone: "",
+    email: "",
+  });
 
-const [officer, setOfficer] = useState({
-  name: "",
-  phone: "",
-  email: "",
-  password: "",
-  role: ""
-});
+  const [officer, setOfficer] = useState({
+    name: "",
+    phone: "",
+    email: "",
+    password: "",
+    role: "",
+  });
 
-const addOfficer = () => {
+  const addOfficer = () => {
+    axios
+      .post(`${BASE_URL}/users`, officer)
+      .then(() => {
+        alert(`${officer.role} added successfully`);
 
-  axios.post("http://localhost:8080/users", officer)
-    .then(() => {
-      alert(`${officer.role} added successfully`);
+        setOfficer({
+          name: "",
+          phone: "",
+          email: "",
+          password: "",
+          role: "",
+        });
+      })
+      .catch((err) => console.log(err));
+  };
 
-      setOfficer({
-        name: "",
-        phone: "",
-        email: "",
-        password: "",
-        role: ""
-      });
-    })
-    .catch((err) => console.log(err));
-};
+  useEffect(() => {
+    const user = JSON.parse(localStorage.getItem("user"));
+    // console.log("USER:", user); // debug
 
+    if (!user || user.role !== "ADMIN") {
+      navigate("/");
+    }
+  }, []);
 
+  useEffect(() => {
+    if (!user?.id) return;
 
-useEffect(() => {
-
-  const user = JSON.parse(localStorage.getItem("user"));
-  // console.log("USER:", user); // debug
-
-  if (!user || user.role !== "ADMIN") {
-    navigate("/login");
-  }
-
-}, []);
-
-useEffect(() => {
-  if (!user?.id) return;
-
-  axios
-    .get(`http://localhost:8080/users/${user.id}`)
-    .then((res) => {
-      setProfile(res.data); // full object
-    })
-    .catch((err) => console.error(err));
-}, [user?.id]);
+    axios
+      .get(`${BASE_URL}/users/${user.id}`)
+      .then((res) => {
+        setProfile(res.data); // full object
+      })
+      .catch((err) => console.error(err));
+  }, [user?.id]);
 
   const [complaints, setComplaints] = useState([]);
 
@@ -78,19 +75,19 @@ useEffect(() => {
 
   // ✅ Fetch complaints
   useEffect(() => {
-  axios
-    .get("http://localhost:8080/complaints/withuser")
-    .then((res) => {
-      // console.log("COMPLAINTS WITH USER:", res.data); // debug
-      setComplaints(res.data);
-    })
-    .catch((err) => console.error(err));
-}, []);
+    axios
+      .get(`${BASE_URL}/complaints/withuser`)
+      .then((res) => {
+        // console.log("COMPLAINTS WITH USER:", res.data); // debug
+        setComplaints(res.data);
+      })
+      .catch((err) => console.error(err));
+  }, []);
 
   // ✅ Fetch stats
   useEffect(() => {
     axios
-      .get("http://localhost:8080/complaints/stats")
+      .get(`${BASE_URL}/complaints/stats`)
       .then((res) => setStats(res.data))
       .catch((err) => console.error(err));
   }, []);
@@ -98,17 +95,15 @@ useEffect(() => {
   // ✅ Update Status
   const updateStatus = (id, status) => {
     axios
-      .put(`http://localhost:8080/complaints/${id}/status`, { status })
+      .put(`${BASE_URL}/complaints/${id}/status`, { status })
       .then(() => {
         // update UI
         setComplaints((prev) =>
-          prev.map((c) =>
-            c.id === id ? { ...c, status } : c
-          )
+          prev.map((c) => (c.id === id ? { ...c, status } : c)),
         );
 
         // refresh stats
-        return axios.get("http://localhost:8080/complaints/stats");
+        return axios.get(`${BASE_URL}/complaints/stats`);
       })
       .then((res) => setStats(res.data))
       .catch((err) => console.error(err));
@@ -124,231 +119,248 @@ useEffect(() => {
   });
 
   return (
-    <div className="flex min-h-screen bg-gray-100">
+    <div className="min-h-screen bg-slate-50 py-6">
+      <div className="mx-auto w-[90vw] max-w-none px-4 sm:px-6 lg:px-8">
+        <div className="grid gap-6 xl:grid-cols-[320px_minmax(0,1fr)]">
+          {/* Sidebar */}
+          <aside className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/10 ring-1 ring-white/10">
+            <div className="mb-8">
+              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Admin Portal</p>
+              <h2 className="mt-3 text-2xl font-semibold">CMS Admin</h2>
+              <p className="mt-2 text-sm text-slate-400">Create users, review complaints, and keep the system running.</p>
+            </div>
 
-      {/* Sidebar */}
-      <div className="w-64 bg-indigo-500 text-white p-6">
-        <h2 className="text-xl font-bold mb-8">CMS Portal</h2>
+            <div className="space-y-5 rounded-3xl border border-white/10 bg-slate-900/70 p-5">
+              <div>
+                <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Profile</p>
+                <p className="mt-3 text-lg font-semibold text-white">{profile.name || "Admin"}</p>
+                <p className="text-sm text-slate-400">{profile.email || "No email available"}</p>
+              </div>
 
-       <ul className="space-y-4">
-          <li className="cursor-pointer hover:text-gray-200">Name</li>
-          <input className="w-full mb-3 p-2 border rounded bg-lime-900"
-  value={profile.name} disabled
-  onChange={(e) => setProfile({ ...profile, name: e.target.value })}
-/>
-          <li className="cursor-pointer hover:text-gray-200 ">Phone</li>
-          <input className="w-full mb-3 p-2 border rounded bg-lime-900"
-  value={profile.phone} disabled
-  onChange={(e) => setProfile({ ...profile, phone: e.target.value })}
-/>
-          <li className="cursor-pointer hover:text-gray-200">Email</li>
-          <input className="w-full mb-3 p-2 border rounded bg-lime-900"
-  value={profile.email} disabled
-  onChange={(e) => setProfile({ ...profile, email: e.target.value })}
-/>
-        </ul>
+              <div className="grid gap-3 rounded-3xl bg-slate-950/90 p-4">
+                <div className="flex items-center justify-between text-sm text-slate-300">
+                  <span>Phone</span>
+                  <span className="font-semibold text-white">{profile.phone || "-"}</span>
+                </div>
+                <div className="flex items-center justify-between text-sm text-slate-300">
+                  <span>Role</span>
+                  <span className="font-semibold text-white">Admin</span>
+                </div>
+              </div>
+            </div>
 
-        {/* Add Officer Section */}
-<div className="mt-10">
-  <h3 className="text-lg font-bold mb-4">Add User</h3>
+            <div className="mt-8 rounded-3xl bg-slate-900/80 p-5">
+              <h3 className="text-sm uppercase tracking-[0.2em] text-slate-400">Create user</h3>
+              <div className="mt-5 space-y-3">
+                <input
+                  type="text"
+                  placeholder="User Name"
+                  className="w-full rounded-3xl border border-white/10 bg-slate-950/90 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400"
+                  value={officer.name}
+                  onChange={(e) => setOfficer({ ...officer, name: e.target.value })}
+                />
+                <input
+                  type="text"
+                  placeholder="Phone"
+                  className="w-full rounded-3xl border border-white/10 bg-slate-950/90 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400"
+                  value={officer.phone}
+                  onChange={(e) => setOfficer({ ...officer, phone: e.target.value })}
+                />
+                <input
+                  type="email"
+                  placeholder="Email"
+                  className="w-full rounded-3xl border border-white/10 bg-slate-950/90 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400"
+                  value={officer.email}
+                  onChange={(e) => setOfficer({ ...officer, email: e.target.value })}
+                />
+                <input
+                  type="password"
+                  placeholder="Password"
+                  className="w-full rounded-3xl border border-white/10 bg-slate-950/90 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400"
+                  value={officer.password}
+                  onChange={(e) => setOfficer({ ...officer, password: e.target.value })}
+                />
+                <select
+                  className="w-full rounded-3xl border border-white/10 bg-slate-950/90 px-4 py-3 text-sm text-white outline-none transition focus:border-sky-400"
+                  value={officer.role}
+                  onChange={(e) => setOfficer({ ...officer, role: e.target.value })}
+                >
+                  <option value="" className="text-slate-400">Select Role</option>
+                  <option value="CITIZEN">Citizen</option>
+                  <option value="OFFICER">Officer</option>
+                  <option value="ADMIN">Admin</option>
+                </select>
+                <button
+                  className="w-full rounded-3xl bg-emerald-500 px-4 py-3 text-sm font-semibold text-white transition hover:bg-emerald-600"
+                  onClick={addOfficer}
+                >
+                  Add User
+                </button>
+              </div>
+            </div>
 
-  <input
-    type="text"
-    placeholder="User Name"
-    className="w-full mb-3 p-2 border rounded bg-white text-black"
-    value={officer.name}
-    onChange={(e) => setOfficer({ ...officer, name: e.target.value })}
-  />
-
-  <input
-    type="text"
-    placeholder="Phone"
-    className="w-full mb-3 p-2 border rounded bg-white text-black"
-    value={officer.phone}
-    onChange={(e) => setOfficer({ ...officer, phone: e.target.value })}
-  />
-
-  <input
-    type="email"
-    placeholder="Email"
-    className="w-full mb-3 p-2 border rounded bg-white text-black"
-    value={officer.email}
-    onChange={(e) => setOfficer({ ...officer, email: e.target.value })}
-  />
-
-  <input
-    type="password"
-    placeholder="Password"
-    className="w-full mb-3 p-2 border rounded bg-white text-black"
-    value={officer.password}
-    onChange={(e) => setOfficer({ ...officer, password: e.target.value })}
-  />
-
-   <select
-  className="w-full mb-3 p-2 border rounded bg-white text-black"
-  value={officer.role}
-  onChange={(e) =>
-    setOfficer({ ...officer, role: e.target.value })
-  }
->
-  <option value="">Select Role</option>
-  <option value="CITIZEN">Citizen</option>
-  <option value="OFFICER">Officer</option>
-  <option value="ADMIN">Admin</option>
-</select>
-
-  <button
-    className="w-full bg-green-600 hover:bg-green-700 py-2 rounded font-semibold"
-    onClick={addOfficer}
-  >
-    Add User
-  </button>
-</div>
-      </div>
-
-      
-
-      {/* Main */}
-      <div className="flex-1">
-
-        {/* Navbar */}
-        <div className="bg-white shadow px-6 py-4 flex justify-between">
-          <h1 className="font-semibold text-lg">Admin Dashboard</h1>
-
-          <div>
-           
             <button
               onClick={() => {
                 localStorage.clear();
-                navigate("/login");
+                navigate("/");
               }}
-              className="bg-red-500 text-white px-3 py-1 rounded"
+              className="mt-8 w-full rounded-3xl bg-rose-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-600"
             >
               Logout
             </button>
-          </div>
-        </div>
+          </aside>
 
-        {/* Content */}
-        <div className="p-6">
+          {/* Main content */}
+          <main className="space-y-6">
+            <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80">
+              <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <p className="text-sm text-slate-500">Administrator Overview</p>
+                  <h1 className="text-2xl font-semibold text-slate-900">Admin Dashboard</h1>
+                </div>
+                <p className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700">Managing {complaints.length} complaints</p>
+              </div>
+            </div>
 
-          {/* Stats */}
-          <div className="grid grid-cols-5 gap-6 mb-6">
-            <StatCard title="Total" value={stats.total} />
-            <StatCard title="Resolved" value={stats.resolved} color="green" />
-            <StatCard title="Pending" value={stats.pending} color="yellow" />
-            <StatCard title="In Progress" value={stats.inProgress} color="orange" />
-            <StatCard title="New" value={stats.newCount} color="blue" />
-          </div>
+            <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
+              <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/80">
+                <p className="text-sm text-slate-500">Total</p>
+                <p className="mt-3 text-3xl font-semibold text-slate-900">{stats.total}</p>
+              </article>
+              <article className="rounded-3xl bg-emerald-50 p-5 shadow-sm ring-1 ring-emerald-200/70">
+                <p className="text-sm text-slate-500">Resolved</p>
+                <p className="mt-3 text-3xl font-semibold text-emerald-700">{stats.resolved}</p>
+              </article>
+              <article className="rounded-3xl bg-sky-50 p-5 shadow-sm ring-1 ring-sky-200/70">
+                <p className="text-sm text-slate-500">Assigned</p>
+                <p className="mt-3 text-3xl font-semibold text-sky-700">{stats.assigned}</p>
+              </article>
+              <article className="rounded-3xl bg-amber-50 p-5 shadow-sm ring-1 ring-amber-200/70">
+                <p className="text-sm text-slate-500">In Progress</p>
+                <p className="mt-3 text-3xl font-semibold text-amber-700">{stats.inProgress}</p>
+              </article>
+              <article className="rounded-3xl bg-indigo-50 p-5 shadow-sm ring-1 ring-indigo-200/70">
+                <p className="text-sm text-slate-500">New</p>
+                <p className="mt-3 text-3xl font-semibold text-indigo-700">{stats.newCount}</p>
+              </article>
+            </section>
 
-          {/* Filters */}
-          <div className="flex flex-wrap gap-3 mb-4">
-            <input
-              type="text"
-              placeholder="Search title..."
-              className="border p-2 rounded w-64"
-              value={search}
-              onChange={(e) => setSearch(e.target.value)}
-            />
+            <section className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80">
+              <div className="flex flex-col gap-3 sm:flex-row sm:items-center sm:justify-between">
+                <div>
+                  <h2 className="text-lg font-semibold text-slate-900">Complaint Management</h2>
+                  <p className="text-sm text-slate-500">Filter, search, and assign complaints from one place.</p>
+                </div>
+                <div className="flex flex-wrap gap-2 text-sm text-slate-500">
+                  <span className="rounded-full bg-slate-100 px-3 py-1">Live filter</span>
+                  <span className="rounded-full bg-slate-100 px-3 py-1">Role-based actions</span>
+                </div>
+              </div>
 
-            <select
-              className="border p-2 rounded"
-              value={statusFilter}
-              onChange={(e) => setStatusFilter(e.target.value)}
-            >
-              <option value="ALL">All Status</option>
-              <option value="NEW">New</option>
-              <option value="IN_PROGRESS">In Progress</option>
-              <option value="RESOLVED">Resolved</option>
-            </select>
+              <div className="mt-6 grid gap-3 lg:grid-cols-[1fr_auto_auto]">
+                <input
+                  type="text"
+                  placeholder="Search title..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400"
+                />
+                <select
+                  value={statusFilter}
+                  onChange={(e) => setStatusFilter(e.target.value)}
+                  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400"
+                >
+                  <option value="ALL">All Status</option>
+                  <option value="NEW">New</option>
+                  <option value="IN_PROGRESS">In Progress</option>
+                  <option value="RESOLVED">Resolved</option>
+                </select>
+                <select
+                  value={categoryFilter}
+                  onChange={(e) => setCategoryFilter(e.target.value)}
+                  className="rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400"
+                >
+                  <option value="ALL">All Category</option>
+                  <option value="FRAUD">Fraud</option>
+                  <option value="HARASSMENT">Harassment</option>
+                  <option value="THEFT">Theft</option>
+                  <option value="TRAFFIC">Traffic</option>
+                  <option value="OTHER">Other</option>
+                </select>
+              </div>
 
-            <select
-              className="border p-2 rounded"
-              value={categoryFilter}
-              onChange={(e) => setCategoryFilter(e.target.value)}
-            >
-              <option value="ALL">All Category</option>
-              <option value="FRAUD">Fraud</option>
-              <option value="HARASSMENT">Harassment</option>
-              <option value="THEFT">Theft</option>
-              <option value="TRAFFIC">Traffic</option>
-              <option value="OTHER">Other</option>
-            </select>
-
-           
-          </div>
-
-          {/* Table */}
-          <div className="bg-white p-6 rounded-2xl shadow-lg">
-            <h2 className="font-semibold text-lg mb-4">All Complaints</h2>
-
-            <table className="w-full text-sm">
-              <thead>
-                <tr className="bg-gray-100">
-                    <th className="p-3 text-left">C_ID</th>
-                  <th className="p-3 text-left">Title</th>
-                  <th className="p-3 text-left">Name</th>
-                  <th className="p-3 text-left">Phone</th>
-                  <th className="p-3 text-left">Email</th>
-                  <th className="p-3 text-left">Category</th>
-                  <th className="p-3 text-left">Status</th>
-                  <th className="p-3 text-left">Location</th>
-                  <th className="p-3 text-left">Action</th>
-                </tr>
-              </thead>
-
-              <tbody>
-                {filteredComplaints.length > 0 ? (
-                  filteredComplaints.map((c) => (
-                    <tr key={c.id} className="border-b hover:bg-gray-50">
-
-                      <td className="p-3">{c.id}</td>
-                      <td className="p-3">{c.title}</td>
-                      <td className="p-3">{c.user?.name}</td>
-                      <td className="p-3">{c.user?.phone}</td>
-                      <td className="p-3">{c.user?.email}</td>
-                      <td className="p-3">{c.category}</td>
-
-                      <td className="p-3">
-                        <span className={`px-2 py-1 rounded text-xs ${
-                          c.status === "RESOLVED"
-                            ? "bg-green-100 text-green-700"
-                            : c.status === "IN_PROGRESS"
-                            ? "bg-yellow-100 text-yellow-700"
-                            : "bg-gray-100"
-                        }`}>
-                          {c.status}
-                        </span>
-                      </td>
-
-                      <td className="p-3">{c.location}</td>
-
-                      <td className="p-3 space-x-2">
-                        <button
-                          disabled={c.status !== "NEW"}
-                          onClick={() => navigate("/assign", { state: { complaintId: c.id } })}
-                          className="bg-green-600 disabled:opacity-50 text-white px-2 py-1 rounded text-xs"
-                        >
-                          Assign
-                        </button>
-
-                      
-                      </td>
-
-                    </tr>
-                  ))
-                ) : (
-                  <tr>
-                    <td colSpan="5" className="text-center py-6 text-gray-400">
-                      No matching complaints
-                    </td>
-                  </tr>
-                )}
-              </tbody>
-
-            </table>
-          </div>
-
+              <div className="mt-6 overflow-hidden rounded-3xl border border-slate-200 shadow-sm">
+                <div className="overflow-x-auto">
+                  <table className="min-w-full divide-y divide-slate-200 text-sm">
+                    <thead className="bg-slate-50 text-slate-600">
+                      <tr className="border-b border-slate-200">
+                        <th className="px-4 py-4 text-left font-semibold uppercase tracking-wide">C_ID</th>
+                        <th className="px-4 py-4 text-left font-semibold uppercase tracking-wide">Title</th>
+                        <th className="px-4 py-4 text-left font-semibold uppercase tracking-wide">Name</th>
+                        <th className="px-4 py-4 text-left font-semibold uppercase tracking-wide">Phone</th>
+                        <th className="px-4 py-4 text-left font-semibold uppercase tracking-wide">Email</th>
+                        <th className="px-4 py-4 text-left font-semibold uppercase tracking-wide">Category</th>
+                        <th className="px-4 py-4 text-left font-semibold uppercase tracking-wide">Status</th>
+                        <th className="px-4 py-4 text-left font-semibold uppercase tracking-wide">Location</th>
+                        <th className="px-4 py-4 text-left font-semibold uppercase tracking-wide">Action</th>
+                      </tr>
+                    </thead>
+                    <tbody className="divide-y divide-slate-200 bg-white">
+                      {filteredComplaints.length > 0 ? (
+                        filteredComplaints.map((c) => (
+                          <tr key={c.id} className="transition hover:bg-slate-50">
+                            <td className="whitespace-nowrap px-4 py-4 text-slate-700">{c.id}</td>
+                            <td className="px-4 py-4 font-medium text-slate-900">{c.title}</td>
+                            <td className="px-4 py-4 text-slate-700">{c.user?.name}</td>
+                            <td className="px-4 py-4 text-slate-700">{c.user?.phone}</td>
+                            <td className="px-4 py-4 text-slate-700">{c.user?.email}</td>
+                            <td className="px-4 py-4 text-slate-700">{c.category}</td>
+                            <td className="px-4 py-4">
+                              <span className={`inline-flex rounded-full px-3 py-1 text-xs font-semibold ${
+                                c.status === "NEW"
+                                  ? "bg-sky-100 text-sky-700"
+                                  : c.status === "ASSIGNED"
+                                  ? "bg-orange-100 text-orange-700"
+                                  : c.status === "IN_PROGRESS"
+                                  ? "bg-amber-100 text-amber-700"
+                                  : c.status === "RESOLVED"
+                                  ? "bg-emerald-100 text-emerald-700"
+                                  : c.status === "CLOSED"
+                                  ? "bg-slate-100 text-slate-700"
+                                  : "bg-slate-100 text-slate-700"
+                              }`}>
+                                {c.status}
+                              </span>
+                            </td>
+                            <td className="px-4 py-4 text-slate-700">{c.location}</td>
+                            <td className="px-4 py-4">
+                              <button
+                                disabled={c.status !== "NEW"}
+                                onClick={() =>
+                                  navigate("/assign", {
+                                    state: { complaintId: c.id },
+                                  })
+                                }
+                                className="rounded-2xl bg-green-600 px-3 py-2 text-xs font-semibold text-white transition hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50"
+                              >
+                                Assign
+                              </button>
+                            </td>
+                          </tr>
+                        ))
+                      ) : (
+                        <tr>
+                          <td colSpan="9" className="px-4 py-20 text-center text-slate-500">
+                            No matching complaints
+                          </td>
+                        </tr>
+                      )}
+                    </tbody>
+                  </table>
+                </div>
+              </div>
+            </section>
+          </main>
         </div>
       </div>
     </div>
@@ -358,16 +370,16 @@ useEffect(() => {
 // Reusable Stat Card Component
 function StatCard({ title, value, color }) {
   const colors = {
-    green: "bg-green-100 text-green-700",
-    yellow: "bg-yellow-100 text-yellow-700",
-    orange: "bg-orange-100 text-orange-700",
-    blue: "bg-blue-100 text-blue-700",
+    green: "bg-emerald-50 text-emerald-700",
+    yellow: "bg-amber-50 text-amber-700",
+    orange: "bg-orange-50 text-orange-700",
+    blue: "bg-sky-50 text-sky-700",
   };
 
   return (
-    <div className={`p-4 rounded shadow ${colors[color] || "bg-white"}`}>
-      <h3 className="text-sm">{title}</h3>
-      <p className="text-2xl font-bold">{value}</p>
+    <div className={`rounded-3xl p-5 shadow-sm ring-1 ring-slate-200/80 ${colors[color] || "bg-white"}`}>
+      <h3 className="text-sm font-medium text-slate-500">{title}</h3>
+      <p className="mt-3 text-3xl font-semibold text-slate-900">{value}</p>
     </div>
   );
 }

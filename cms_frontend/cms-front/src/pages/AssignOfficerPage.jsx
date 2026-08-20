@@ -1,170 +1,134 @@
 import { useEffect, useState } from "react";
 import axios from "axios";
-import { useNavigate, useParams } from "react-router-dom";
+import { useNavigate, useLocation } from "react-router-dom";
 
-export default function OfficersListPage() {
-
+const BASE_URL = import.meta.env.VITE_LOCAL_URL;
+export default function AssignOfficerPage() {
   const navigate = useNavigate();
+  const location = useLocation();
+  const selectedComplaintId = location.state?.complaintId || "";
 
- const [complaintIds, setComplaintIds] = useState({});
-
+  const [complaintIds, setComplaintIds] = useState({});
   const [officers, setOfficers] = useState([]);
   const [loadingOfficerId, setLoadingOfficerId] = useState(null);
 
 
-
-  // fetch officershttps://diplomatic-upliftment-production.up.railway.app
+  // fetch officers
   useEffect(() => {
     axios
-      .get("http://localhost:8080/users/officers/stats")
-      .then((res) => {
-        console.log("OFFICERS:", res.data);
-        setOfficers(res.data);
-      })
+      .get(`${BASE_URL}/users/officers/stats`)
+      .then((res) => setOfficers(res.data))
       .catch((err) => console.error(err));
   }, []);
 
-  // assign complaint
   const assignComplaint = (officerId) => {
+    const complaintId = complaintIds[officerId] || selectedComplaintId;
+
+    if (!complaintId) {
+      alert("Please enter or select a complaint ID before assigning.");
+      return;
+    }
 
     setLoadingOfficerId(officerId);
 
     axios
-      .put(
-        `http://localhost:8080/complaints/${complaintIds[officerId]}/assign?officerId=${officerId}`
-      )
+      .put(`${BASE_URL}/complaints/${complaintId}/assign?officerId=${officerId}`)
       .then(() => {
-        alert("Complaint Assigned Successfully");
-
+        alert("Complaint assigned successfully.");
         navigate("/admin");
       })
       .catch((err) => {
         console.error(err);
-        alert("Assignment Failed");
+        alert("Assignment failed. Please try again.");
       })
-      .finally(() => {
-        setLoadingOfficerId(null);
-      });
+      .finally(() => setLoadingOfficerId(null));
   };
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6">
-
-      {/* Header */}
-      <div className="flex justify-between items-center mb-6">
-
-        <div>
-          <h1 className="text-3xl font-bold text-gray-800">
-            Officers Dashboard
-          </h1>
-
-          <p className="text-gray-500 mt-1">
-            Assign complaint to available officers
-          </p>
+    <div className="min-h-screen bg-slate-50 py-6">
+      <div className="mx-auto w-[90vw] max-w-none px-4 sm:px-6 lg:px-8">
+        <div className="rounded-4xl border border-slate-200 bg-white p-6 shadow-xl shadow-slate-900/5">
+          <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
+            <div>
+              <p className="text-sm uppercase tracking-[0.3em] text-slate-400">Officer Assignment</p>
+              <h1 className="mt-3 text-3xl font-semibold text-slate-900">Assign Complaint to Officer</h1>
+              <p className="mt-3 max-w-2xl text-sm leading-6 text-slate-600">
+                Assign complaints to the right officer quickly. Use the complaint ID from the admin complaint list or enter it manually below.
+              </p>
+            </div>
+            <button
+              onClick={() => navigate("/admin")}
+              className="inline-flex items-center justify-center rounded-3xl bg-slate-900 px-5 py-3 text-sm font-semibold text-white transition hover:bg-slate-800"
+            >
+              Back to Admin
+            </button>
+          </div>
         </div>
 
-        <button
-          onClick={() => navigate("/admin-dashboard")}
-          className="bg-gray-700 hover:bg-gray-800 text-white px-4 py-2 rounded-lg"
-        >
-          Back
-        </button>
-
-      </div>
-
-      {/* Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6">
-
-        {officers.length > 0 ? (
-          officers.map((o) => (
-
-            <div
-              key={o.id}
-              className="bg-white rounded-2xl shadow-md p-6 hover:shadow-xl transition duration-300 border border-gray-100"
-            >
-
-              {/* Top */}
-              <div className="flex items-center justify-between mb-5">
-
-                <div>
-                  <h2 className="text-xl font-semibold text-gray-800">
-                    {o.name}
-                  </h2>
-
-                  <p className="text-sm text-gray-400">
-                    Officer ID : #{o.id}
-                  </p>
-                </div>
-
-                {/* Count Badge */}
-                <div>
-                  <span className="bg-green-100 px-4 py-2 rounded-full text-sm font-bold">
-  {o.count} Cases
-</span>
-                </div>
-
-              </div>
-
-              {/* Details */}
-              <div className="space-y-3 text-sm">
-
-                <div className="flex justify-between border-b pb-2">
-                  <span className="text-gray-500">Phone</span>
-                  <span className="font-medium text-gray-700">
-                    {o.phone}
-                  </span>
-                </div>
-
-                <div className="flex justify-between border-b pb-2">
-                  <span className="text-gray-500">Email</span>
-                  <span className="font-medium text-gray-700 break-all">
-                    {o.email}
-                  </span>
-                </div>
-
-                <input
-  type="number"
-  placeholder="Enter Complaint ID"
-  value={complaintIds[o.id] || ""}
-onChange={(e) =>
-  setComplaintIds({
-    ...complaintIds,
-    [o.id]: e.target.value,
-  })
-}
-  className="w-full border px-3 py-2 rounded-lg mt-4"
-/>
-
-              </div>
-
-              {/* Button */}
-              <button
-                onClick={() => assignComplaint(o.id)}
-                disabled={loadingOfficerId === o.id}
-                className={`w-full mt-6 py-3 rounded-xl text-white font-semibold transition duration-300
-                  
-                  ${
-                    loadingOfficerId === o.id
-                      ? "bg-gray-400 cursor-not-allowed"
-                      : "bg-indigo-600 hover:bg-indigo-700"
-                  }
-                `}
+        <div className="mt-6 grid gap-6 lg:grid-cols-3">
+          {officers.length > 0 ? (
+            officers.map((officer) => (
+              <div
+                key={officer.id}
+                className="rounded-[1.75rem] border border-slate-200 bg-white p-6 shadow-sm transition hover:-translate-y-1 hover:shadow-lg"
               >
-                {loadingOfficerId === o.id
-                  ? "Assigning..."
-                  : "Assign Complaint"}
-              </button>
+                <div className="flex items-start justify-between gap-4">
+                  <div>
+                    <h2 className="text-xl font-semibold text-slate-900">{officer.name}</h2>
+                    <p className="mt-1 text-sm text-slate-500">Officer #{officer.id}</p>
+                  </div>
+                  <span className="rounded-full bg-emerald-100 px-3 py-1 text-xs font-semibold text-emerald-700">
+                    {officer.count} cases
+                  </span>
+                </div>
 
+                <div className="mt-6 space-y-4 text-sm text-slate-600">
+                  <div className="rounded-3xl bg-slate-50 p-4">
+                    <p className="text-slate-500">Phone</p>
+                    <p className="mt-1 font-medium text-slate-900">{officer.phone}</p>
+                  </div>
+                  <div className="rounded-3xl bg-slate-50 p-4">
+                    <p className="text-slate-500">Email</p>
+                    <p className="mt-1 break-all font-medium text-slate-900">{officer.email}</p>
+                  </div>
+                </div>
+
+                <div className="mt-6 space-y-3">
+                  <label className="block text-sm font-medium text-slate-700">Complaint ID</label>
+                  <input
+                    type="number"
+                    placeholder={selectedComplaintId ? `Complaint ID (${selectedComplaintId})` : "Enter complaint ID"}
+                    value={complaintIds[officer.id] ?? selectedComplaintId}
+                    onChange={(e) =>
+                      setComplaintIds((prev) => ({
+                        ...prev,
+                        [officer.id]: e.target.value,
+                      }))
+                    }
+                    className="w-full rounded-3xl border border-slate-200 bg-slate-50 px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-blue-400 focus:ring-4 focus:ring-blue-100"
+                  />
+                </div>
+
+                <button
+                  onClick={() => assignComplaint(officer.id)}
+                  disabled={loadingOfficerId === officer.id}
+                  className={`mt-6 w-full rounded-3xl px-4 py-3 text-sm font-semibold text-white transition ${
+                    loadingOfficerId === officer.id
+                      ? "bg-slate-400 cursor-not-allowed"
+                      : "bg-indigo-600 hover:bg-indigo-700"
+                  }`}
+                >
+                  {loadingOfficerId === officer.id ? "Assigning..." : "Assign Complaint"}
+                </button>
+              </div>
+            ))
+          ) : (
+            <div className="rounded-[1.75rem] border border-slate-200 bg-white p-10 text-center shadow-sm">
+              <p className="text-lg font-medium text-slate-700">No officers available right now.</p>
+              <p className="mt-2 text-sm text-slate-500">Refresh the page or come back later.</p>
             </div>
-          ))
-        ) : (
-          <div className="col-span-full bg-white rounded-xl p-10 text-center shadow">
-            <p className="text-gray-400 text-lg">
-              No officers found
-            </p>
-          </div>
-        )}
-
+          )}
+        </div>
       </div>
     </div>
   );
