@@ -32,7 +32,7 @@ export default function Home() {
       });
 
       const user = res.data;
-      localStorage.setItem("user", JSON.stringify(user));
+      sessionStorage.setItem("user", JSON.stringify(user));
 
       if (user.role === "ADMIN") {
         navigate("/admin");

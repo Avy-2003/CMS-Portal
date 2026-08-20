@@ -3,10 +3,10 @@ import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = import.meta.env.VITE_LOCAL_URL;
+const BASE_URL = "http://localhost:8080"; // Replace with your backend URL
 export default function UserDashboard() {
   const navigate = useNavigate();
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(sessionStorage.getItem("user"));
   const userId = user?.id;
   const [stats, setStats] = useState({
   total: 0,
@@ -26,7 +26,7 @@ const [complaints, setComplaints] = useState([]);
 
 useEffect(() => {
 
-  const user = JSON.parse(localStorage.getItem("user"));
+  const user = JSON.parse(sessionStorage.getItem("user"));
 
   if (!user || user.role !== "CITIZEN") {
     navigate("/");
@@ -134,7 +134,7 @@ const handleSubmit = () => {
 
             <button
               onClick={() => {
-                localStorage.clear();
+                sessionStorage.clear();
                 navigate("/");
               }}
               className="mt-8 w-full rounded-3xl bg-rose-500 px-4 py-3 text-sm font-semibold text-white shadow-sm transition hover:bg-rose-600"
