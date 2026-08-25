@@ -21,6 +21,9 @@ export default function AdminDashboard() {
     email: "",
   });
 
+  const [currentPage, setCurrentPage] = useState(1);
+const [itemsPerPage] = useState(10);
+
   const [officer, setOfficer] = useState({
     name: "",
     phone: "",
@@ -65,6 +68,8 @@ export default function AdminDashboard() {
       })
       .catch((err) => console.error(err));
   }, [user?.id]);
+
+
 
   const [complaints, setComplaints] = useState([]);
 
@@ -117,6 +122,24 @@ export default function AdminDashboard() {
       c.title.toLowerCase().includes(search.toLowerCase())
     );
   });
+
+  
+  const totalPages = Math.ceil(
+  filteredComplaints.length / itemsPerPage
+);
+
+const indexOfLastItem = currentPage * itemsPerPage;
+
+const indexOfFirstItem = indexOfLastItem - itemsPerPage;
+
+const currentComplaints = filteredComplaints.slice(
+  indexOfFirstItem,
+  indexOfLastItem
+);
+
+  useEffect(() => {
+  setCurrentPage(1);
+}, [statusFilter, categoryFilter, search]);
 
   return (
     <div className="min-h-screen bg-slate-50 py-6">
@@ -306,8 +329,8 @@ export default function AdminDashboard() {
                       </tr>
                     </thead>
                     <tbody className="divide-y divide-slate-200 bg-white">
-                      {filteredComplaints.length > 0 ? (
-                        filteredComplaints.map((c) => (
+                      {currentComplaints.length > 0 ? (
+                        currentComplaints.map((c) => (
                           <tr key={c.id} className="transition hover:bg-slate-50">
                             <td className="whitespace-nowrap px-4 py-4 text-slate-700">{c.id}</td>
                             <td className="px-4 py-4 font-medium text-slate-900">{c.title}</td>
@@ -357,6 +380,30 @@ export default function AdminDashboard() {
                       )}
                     </tbody>
                   </table>
+
+                  <div className="flex items-center justify-between border-t border-slate-200 px-4 py-4">
+
+  <button
+    onClick={() => setCurrentPage((prev) => prev - 1)}
+    disabled={currentPage === 1}
+    className="rounded-lg border px-4 py-2 disabled:opacity-50"
+  >
+    Previous
+  </button>
+
+  <span className="text-sm text-slate-600">
+    Page {currentPage} of {totalPages || 1}
+  </span>
+
+  <button
+    onClick={() => setCurrentPage((prev) => prev + 1)}
+    disabled={currentPage === totalPages || totalPages === 0}
+    className="rounded-lg border px-4 py-2 disabled:opacity-50"
+  >
+    Next
+  </button>
+
+</div>
                 </div>
               </div>
             </section>
