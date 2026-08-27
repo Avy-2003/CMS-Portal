@@ -84,7 +84,7 @@ useEffect(() => {
           {/* Sidebar */}
           <aside className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/10 ring-1 ring-white/10">
             <div className="mb-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Officer Panel</p>
+              
               <h2 className="mt-3 text-2xl font-semibold">CMS Portal</h2>
               <p className="mt-2 text-sm text-slate-400">Manage complaints, track status, and update resolutions.</p>
             </div>
@@ -117,7 +117,7 @@ useEffect(() => {
                 </div>
                 <div className="rounded-3xl bg-slate-950/80 p-4">
                   <p className="text-xs text-slate-400">New Complaints</p>
-                  <p className="mt-2 text-2xl font-semibold text-sky-300">{stats.new}</p>
+                  <p className="mt-2 text-2xl font-semibold text-sky-300">{stats.assigned}</p>
                 </div>
               </div>
             </div>
