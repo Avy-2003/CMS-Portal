@@ -2,19 +2,19 @@ package com.system.cms.mapper;
 
 import com.system.cms.dto.ComplaintDTO;
 import com.system.cms.entity.Complaint;
-import com.system.cms.util.Category;
 
 public class ComplaintMapper {
 
     public static Complaint toEntity(ComplaintDTO dto) {
+
         Complaint c = new Complaint();
+
         c.setTitle(dto.getTitle());
         c.setDescription(dto.getDescription());
         c.setLocation(dto.getLocation());
-        // Category
-        if (dto.getCategory() != null) {
-            c.setCategory(Category.valueOf(dto.getCategory().toUpperCase()));
-        }
+        c.setCategory(dto.getCategory() != null ? dto.getCategory() : null);
+        c.setSubCategory(dto.getSubCategory() != null ? dto.getSubCategory() : null);
+        c.setPriority(dto.getPriority() != null ? dto.getPriority() : null);
         return c;
     }
 
@@ -25,20 +25,35 @@ public class ComplaintMapper {
         dto.setId(c.getId());
         dto.setTitle(c.getTitle());
         dto.setDescription(c.getDescription());
-        dto.setStatus(c.getStatus().name());
-        dto.setLocation(c.getLocation());
-        dto.setCategory(String.valueOf(c.getCategory()));
 
+        if (c.getStatus() != null) {
+            dto.setStatus(c.getStatus().name());
+        }
+
+        dto.setLocation(c.getLocation());
+
+        // Category
+        dto.setCategory(c.getCategory());
+
+        // Sub Category
+        dto.setSubCategory(c.getSubCategory());
+
+        // Citizen
         if (c.getUser() != null) {
+
             dto.setUserId(c.getUser().getId());
             dto.setUserName(c.getUser().getName());
             dto.setUserPhone(c.getUser().getPhone());
             dto.setUserEmail(c.getUser().getEmail());
         }
 
+        // Assigned Officer
         if (c.getAssignedOfficer() != null) {
-            dto.setAssignedOfficerId(c.getAssignedOfficer().getId());
+            dto.setAssignedOfficerId(
+                    c.getAssignedOfficer().getId()
+            );
         }
+        dto.setPriority(c.getPriority());
 
         return dto;
     }

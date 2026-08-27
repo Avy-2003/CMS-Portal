@@ -2,11 +2,15 @@ package com.system.cms.service;
 
 import com.system.cms.dto.ComplaintDTO;
 import com.system.cms.dto.ComplaintStatsDTO;
+import com.system.cms.entity.Category;
 import com.system.cms.entity.Complaint;
+import com.system.cms.entity.SubCategory;
 import com.system.cms.entity.User;
 import com.system.cms.exception.ResourceNotFoundException;
 import com.system.cms.mapper.ComplaintMapper;
+import com.system.cms.repository.CategoryRepository;
 import com.system.cms.repository.ComplaintRepository;
+import com.system.cms.repository.SubCategoryRepository;
 import com.system.cms.repository.UserRepository;
 import com.system.cms.util.ComplaintStatus;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +34,12 @@ public class ComplaintServiceImpl implements ComplaintService {
     @Autowired
     private EmailService emailService;
 
+    @Autowired
+    private CategoryRepository categoryRepository;
+
+    @Autowired
+    private SubCategoryRepository subCategoryRepository;
+
     @Override
     public ComplaintDTO createComplaint(ComplaintDTO dto) {
 
@@ -46,9 +56,9 @@ public class ComplaintServiceImpl implements ComplaintService {
         complaint.setUser(user);
 
         Complaint saved = complaintRepository.save(complaint);
-        emailService.sendComplaintNotification(
-                "abhishekgowdavy7@gmail.com",
-                saved);
+//        emailService.sendComplaintNotification(
+//                "abhishekgowdavy7@gmail.com",
+//                saved);
 
         return ComplaintMapper.toDTO(saved);
     }
