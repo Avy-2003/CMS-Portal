@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080"; // Replace with your backend URL
+const BASE_URL = "http://localhost:8080"; // Replace with backend URL
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user"));
@@ -78,7 +78,7 @@ const [itemsPerPage] = useState(10);
   const [statusFilter, setStatusFilter] = useState("ALL");
   const [categoryFilter, setCategoryFilter] = useState("ALL");
 
-  // ✅ Fetch complaints
+  // Fetch complaints
   useEffect(() => {
     axios
       .get(`${BASE_URL}/complaints/withuser`)
@@ -89,7 +89,7 @@ const [itemsPerPage] = useState(10);
       .catch((err) => console.error(err));
   }, []);
 
-  // ✅ Fetch stats
+  // Fetch stats
   useEffect(() => {
     axios
       .get(`${BASE_URL}/complaints/stats`)
@@ -97,7 +97,7 @@ const [itemsPerPage] = useState(10);
       .catch((err) => console.error(err));
   }, []);
 
-  // ✅ Update Status
+  // Update Status
   const updateStatus = (id, status) => {
     axios
       .put(`${BASE_URL}/complaints/${id}/status`, { status })
@@ -114,7 +114,7 @@ const [itemsPerPage] = useState(10);
       .catch((err) => console.error(err));
   };
 
-  // ✅ Filter logic
+  //  Filter logic
   const filteredComplaints = complaints.filter((c) => {
     return (
       (statusFilter === "ALL" || c.status === statusFilter) &&
@@ -148,8 +148,8 @@ const currentComplaints = filteredComplaints.slice(
           {/* Sidebar */}
           <aside className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/10 ring-1 ring-white/10">
             <div className="mb-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Admin Portal</p>
-              <h2 className="mt-3 text-2xl font-semibold">CMS Admin</h2>
+              
+              <h2 className="mt-3 text-2xl font-semibold">CMS Portal</h2>
               <p className="mt-2 text-sm text-slate-400">Create users, review complaints, and keep the system running.</p>
             </div>
 
@@ -238,7 +238,7 @@ const currentComplaints = filteredComplaints.slice(
             <div className="rounded-3xl bg-white p-6 shadow-sm ring-1 ring-slate-200/80">
               <div className="flex flex-col gap-4 sm:flex-row sm:items-center sm:justify-between">
                 <div>
-                  <p className="text-sm text-slate-500">Administrator Overview</p>
+                  <p className="text-sm text-slate-500">Welcome back,</p>
                   <h1 className="text-2xl font-semibold text-slate-900">Admin Dashboard</h1>
                 </div>
                 <p className="rounded-full bg-slate-100 px-4 py-2 text-sm text-slate-700">Managing {complaints.length} complaints</p>
@@ -297,6 +297,7 @@ const currentComplaints = filteredComplaints.slice(
                   <option value="NEW">New</option>
                   <option value="IN_PROGRESS">In Progress</option>
                   <option value="RESOLVED">Resolved</option>
+                  <option value="ASSIGNED">Assigned</option>
                 </select>
                 <select
                   value={categoryFilter}

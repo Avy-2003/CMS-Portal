@@ -22,6 +22,10 @@ const [profile, setProfile] = useState({
   email: ""
 });
 
+const [categories, setCategories] = useState([]);
+const [subCategories, setSubCategories] = useState([]);
+const [selectedCategoryId, setSelectedCategoryId] = useState("");
+
 const [complaints, setComplaints] = useState([]);
 
 useEffect(() => {
@@ -32,6 +36,17 @@ useEffect(() => {
     navigate("/");
   }
 
+}, []);
+
+useEffect(() => {
+  axios
+    .get("http://localhost:8080/categories")
+    .then((response) => {
+      setCategories(response.data);
+    })
+    .catch((error) => {
+      console.error("Error fetching categories:", error);
+    });
 }, []);
 
 
@@ -108,8 +123,8 @@ const handleSubmit = () => {
           {/* Sidebar */}
           <aside className="rounded-3xl bg-slate-950 p-6 text-white shadow-xl shadow-slate-900/10 ring-1 ring-white/10">
             <div className="mb-8">
-              <p className="text-xs uppercase tracking-[0.2em] text-slate-400">Citizen Portal</p>
-              <h2 className="mt-3 text-2xl font-semibold">CMS User</h2>
+              
+              <h2 className="mt-3 text-2xl font-semibold">CMS Portal</h2>
               <p className="mt-2 text-sm text-slate-400">Track your complaints and raise new requests with ease.</p>
             </div>
 
@@ -157,7 +172,7 @@ const handleSubmit = () => {
 
             <section className="grid gap-4 sm:grid-cols-2 xl:grid-cols-5">
               <article className="rounded-3xl bg-white p-5 shadow-sm ring-1 ring-slate-200/80">
-                <p className="text-sm text-slate-500">Total Complaints</p>
+                <p className="text-sm text-slate-500">Total </p>
                 <p className="mt-3 text-3xl font-semibold text-slate-900">{stats.total}</p>
               </article>
               <article className="rounded-3xl bg-emerald-50 p-5 shadow-sm ring-1 ring-emerald-200/70">
@@ -190,20 +205,113 @@ const handleSubmit = () => {
               <div className="mt-6 grid gap-4 lg:grid-cols-[1fr_320px]">
                 <div className="space-y-4 rounded-3xl border border-slate-200 bg-slate-50 p-5">
                   <div>
-                    <label className="block text-sm font-medium text-slate-700">Category</label>
-                    <select
-                      className="mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400"
-                      value={newComplaint.category}
-                      onChange={(e) => setNewComplaint({ ...newComplaint, category: e.target.value })}
-                    >
-                      <option value="" className="text-slate-400">Select Category</option>
-                      <option value="FRAUD">Fraud</option>
-                      <option value="HARASSMENT">Harassment</option>
-                      <option value="THEFT">Theft</option>
-                      <option value="TRAFFIC">Traffic</option>
-                      <option value="OTHER">Other</option>
-                    </select>
-                  </div>
+  <label className="block text-sm font-medium text-slate-700">
+    Category
+  </label>
+
+  <select
+    className="mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400"
+    value={selectedCategoryId}
+    onChange={async (e) => {
+
+      const categoryId = e.target.value;
+
+      setSelectedCategoryId(categoryId);
+
+      // Clear previous subcategory
+      setSubCategories([]);
+
+      setNewComplaint({
+        ...newComplaint,
+        category: "",
+        subCategory: ""
+      });
+
+      if (!categoryId) {
+        return;
+      }
+
+      // Find category
+      const selectedCategory = categories.find(
+        (category) => category.id === Number(categoryId)
+      );
+
+      // Save category NAME in complaint
+      setNewComplaint({
+        ...newComplaint,
+        category: selectedCategory.categoryName,
+        subCategory: ""
+      });
+
+      try {
+
+        const response = await axios.get(
+          `http://localhost:8080/subcategories/category/${categoryId}`
+        );
+
+        setSubCategories(response.data);
+
+      } catch (error) {
+
+        console.error(
+          "Error fetching subcategories:",
+          error
+        );
+      }
+    }}
+  >
+    <option value="">
+      Select Category
+    </option>
+
+    {categories.map((category) => (
+      <option
+        key={category.id}
+        value={category.id}
+      >
+        {category.categoryName}
+      </option>
+    ))}
+  </select>
+</div>
+
+<div>
+  <label className="block text-sm font-medium text-slate-700">
+    Sub Category
+  </label>
+
+  <select
+    className="mt-2 w-full rounded-3xl border border-slate-200 bg-white px-4 py-3 text-sm text-slate-900 outline-none transition focus:border-sky-400"
+    
+    value={newComplaint.subCategory || ""}
+
+    onChange={(e) => {
+      const subCategoryName = e.target.value;
+
+      console.log("Selected Subcategory:", subCategoryName);
+
+      setNewComplaint((prev) => ({
+        ...prev,
+        subCategory: subCategoryName
+      }));
+    }}
+
+    disabled={!selectedCategoryId}
+  >
+    <option value="">
+      Select Sub Category
+    </option>
+
+    {subCategories.map((subCategory) => (
+      <option
+        key={subCategory.id}
+        value={subCategory.subCategoryName}
+      >
+        {subCategory.subCategoryName}
+      </option>
+    ))}
+  </select>
+</div>
 
                   <div>
                     <label className="block text-sm font-medium text-slate-700">Title</label>

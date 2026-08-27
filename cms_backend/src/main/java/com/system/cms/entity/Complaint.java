@@ -1,6 +1,5 @@
 package com.system.cms.entity;
 
-import com.system.cms.util.Category;
 import com.system.cms.util.ComplaintStatus;
 import jakarta.persistence.*;
 import lombok.Data;
@@ -24,8 +23,10 @@ public class Complaint {
     @Enumerated(EnumType.STRING)
     private ComplaintStatus status;
 
-    @Enumerated(EnumType.STRING)
-    private Category category;
+    private String category;
+
+    @Column(name = "sub_category")
+    private String subCategory;
 
     private String location;
 
