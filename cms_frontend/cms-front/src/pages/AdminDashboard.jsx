@@ -2,7 +2,7 @@ import { useNavigate } from "react-router-dom";
 import { useState, useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080"; // Replace with backend URL
+const BASE_URL = import.meta.env.VITE_LOCAL_URL; // Replace with backend URL
 export default function AdminDashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user"));
