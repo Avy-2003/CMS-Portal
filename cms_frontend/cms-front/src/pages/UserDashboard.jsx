@@ -3,7 +3,7 @@ import { useState } from "react";
 import { useEffect } from "react";
 import axios from "axios";
 
-const BASE_URL = "http://localhost:8080"; // Replace with your backend URL
+const BASE_URL = import.meta.env.VITE_LOCAL_URL; // Replace with your backend URL
 export default function UserDashboard() {
   const navigate = useNavigate();
   const user = JSON.parse(sessionStorage.getItem("user"));
