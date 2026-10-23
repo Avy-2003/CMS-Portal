@@ -246,7 +246,7 @@ const handleSubmit = () => {
       try {
 
         const response = await axios.get(
-          `BASE_/subcategories/category/${categoryId}`
+          `${BASE_URL}/subcategories/category/${categoryId}`
         );
 
         setSubCategories(response.data);
