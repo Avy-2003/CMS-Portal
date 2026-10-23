@@ -40,7 +40,7 @@ useEffect(() => {
 
 useEffect(() => {
   axios
-    .get("http://localhost:8080/categories")
+    .get(`${BASE_URL}/categories`)
     .then((response) => {
       setCategories(response.data);
     })
@@ -246,7 +246,7 @@ const handleSubmit = () => {
       try {
 
         const response = await axios.get(
-          `http://localhost:8080/subcategories/category/${categoryId}`
+          `BASE_/subcategories/category/${categoryId}`
         );
 
         setSubCategories(response.data);
